@@ -27,6 +27,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Next, we load the data
 data = load_breast_cancer()
@@ -121,4 +122,45 @@ plt.legend()
 plt.plot(r2.history['accuracy'], label='acc')
 plt.plot(r2.history['val_accuracy'], label='val_acc')
 plt.legend()
+
+"""# Part 2 - Making Predictions
+
+This code looks at how the previously trained models can be used in order to generate predictions
+"""
+
+# We first want to make a prediction. These values are probabilities
+Predicted = model2.predict(X_test)
+
+# To get actual classes, the Prediction values need to be rounded.
+# The predicted values also need to be flatten, to match the target size (N,)
+
+Predicted = np.round(Predicted).flatten()
+
+# Finally, we calculate the accuracy, both manually and using the evaluate function.
+print("Manual calculation:", np.mean(Predicted==y_test))
+print("Evaluate calculation:", model2.evaluate(X_test, y_test))
+
+"""# Part 3 - Making Predictions
+
+This code looks at how the above model can be saved.
+"""
+
+model2.save('linear_classification.h5')
+
+# Confirming file stored locally.
+!ls -lh
+
+# Let's load the model and confirm that it still works
+# Note: there is a bug in Keras where load/save only works if you DON'T use the Input() layer explicitly
+# So, make sure you define the model with ONLY Dense(1, input_shape=(D,))
+# At least, until the bug is fixed
+# https://github.com/keras-team/keras/issues/10417
+
+model = tf.keras.models.load_model('linear_classification.h5')
+print(model.layers)
+model.evaluate(X_test, y_test)
+
+# Download the file - requires Chrome (at this point)
+from google.colab import files
+files.download('linear_classification.h5')
 

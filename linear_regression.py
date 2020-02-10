@@ -133,3 +133,47 @@ b = ( Y.mean() * X.dot(X) - X.mean() * X.dot(Y) ) / denominator
 print(a, b)
 print("Time to double:", np.log(2) / a)
 
+"""# Part 2 - Making Predictions
+
+This code looks at how the previously trained models can be used in order to generate predictions
+"""
+
+# We first check if the line obtained fits the data
+Y_hat = model_2.predict(X).flatten()
+plt.scatter(X,y_log)
+plt.plot(X,Y_hat,'r')
+
+# We can also perform a manual calculation
+
+# Get the weights
+w, b = model_2.layers[0].get_weights()
+
+# Reshape X because we flattened it again earlier
+X = X.reshape(-1, 1)
+
+# (N x 1) x (1 x 1) + (1) --> (N x 1)
+Y_hat2 = (X.dot(w) + b).flatten()
+
+# Don't use == for floating points
+np.allclose(Y_hat, Y_hat2)
+
+"""# Part 3 - Making Predictions
+
+This code looks at how the above model can be saved.
+"""
+
+model_2.save('linear_regression.h5')
+
+# Confirming file stored locally.
+!ls -lh
+
+# Let's load the model and confirm that it still works
+# Note: there is a bug in Keras where load/save only works if you DON'T use the Input() layer explicitly
+# So, make sure you define the model with ONLY Dense(1, input_shape=(D,))
+# At least, until the bug is fixed
+# https://github.com/keras-team/keras/issues/10417
+
+model = tf.keras.models.load_model('linear_regression.h5')
+print(model.layers)
+model.evaluate(X, y_log)
+
